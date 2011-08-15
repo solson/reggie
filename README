@@ -1,0 +1,11 @@
+Reggie is a little IRC bot that watches for perl-style "s/match/replace/" in chat and performs the actual regex replace (using Ruby's regex) on the previous line and prints the result.
+
+Prepend 'n' exclamation marks before the "s/" to make reggie replace the 'n'th last line you said (ignores the lines of others). 'n' is limited to the MAX_BANGS constant in reggie.rb.
+
+Reggie handles /me (ACTION) lines correctly.
+
+Requirements
+------------
+
+Reggie requires the 'cinch' gem'
+
