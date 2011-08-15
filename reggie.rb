@@ -74,11 +74,11 @@ bot = Cinch::Bot.new do
         target.sub(match, replace)
       end
       
-#      if target == answer
+      if target == answer
 #        m.reply("Your regex, it isn't very effective!", true)
 #        m.reply('in bed') if rand(100) == 42
-#        next
-#      end
+        next
+      end
       
       m.reply(prefix + answer)
     elsif m.message =~ /^#{Regexp.escape(m.bot.nick)}[:,]\s*help/
