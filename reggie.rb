@@ -61,23 +61,30 @@ bot = Cinch::Bot.new do
         @channel_memory[m.channel][0]
       end
 
+      answer = if replace_all
+        target.gsub(match, replacement)
+      else
+        target.sub(match, replacement)
+      end
+
+      if target == answer && bangs.length == 0
+        nick = m.user.nick
+        target = @ch_user_memory[m.channel][m.user.nick].last
+
+        answer = if replace_all
+          target.gsub(match, replacement)
+        else
+          target.sub(match, replacement)
+        end
+      end
+      
+      next if target == answer
+
       if target =~ /^\x01ACTION (.*)\x01$/
         prefix = "* #{nick} "
         target = $1
       else
         prefix = "<#{nick}> "
-      end
-
-      answer = if replace_all
-        target.gsub(match, replace)
-      else
-        target.sub(match, replace)
-      end
-      
-      if target == answer
-#        m.reply("Your regex, it isn't very effective!", true)
-#        m.reply('in bed') if rand(100) == 42
-        next
       end
       
       m.reply(prefix + answer)
