@@ -62,9 +62,9 @@ bot = Cinch::Bot.new do
       end
 
       answer = if replace_all
-        target.gsub(match, replacement)
+        target.gsub(match, replace)
       else
-        target.sub(match, replacement)
+        target.sub(match, replace)
       end
 
       if target == answer && bangs.length == 0
@@ -72,9 +72,9 @@ bot = Cinch::Bot.new do
         target = @ch_user_memory[m.channel][m.user.nick].last
 
         answer = if replace_all
-          target.gsub(match, replacement)
+          target.gsub(match, replace)
         else
-          target.sub(match, replacement)
+          target.sub(match, replace)
         end
       end
       
