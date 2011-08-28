@@ -67,14 +67,20 @@ bot = Cinch::Bot.new do
         target.sub(match, replace)
       end
 
-      if target == answer && bangs.length == 0
+      # If s/// doesn't change anything, it will try !s///, !!s///, etc, up
+      # to the maximum number of exclamation marks.
+      if bangs.length == 0 && target == answer
         nick = m.user.nick
-        target = @ch_user_memory[m.channel][m.user.nick].last
+        1.upto(@max_bangs) do |i|
+          target = @ch_user_memory[m.channel][m.user.nick][-i]
 
-        answer = if replace_all
-          target.gsub(match, replace)
-        else
-          target.sub(match, replace)
+          answer = if replace_all
+            target.gsub(match, replace)
+          else
+            target.sub(match, replace)
+          end
+
+          break if answer != target
         end
       end
       
