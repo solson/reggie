@@ -61,6 +61,13 @@ bot = Cinch::Bot.new do
         @channel_memory[m.channel][0]
       end
 
+      if target =~ /^\x01ACTION (.*)\x01$/
+        prefix = "* #{nick} "
+        target = $1
+      else
+        prefix = "<#{nick}> "
+      end
+
       answer = if replace_all
         target.gsub(match, replace)
       else
@@ -74,6 +81,13 @@ bot = Cinch::Bot.new do
         1.upto(@max_bangs) do |i|
           target = @ch_user_memory[m.channel][m.user.nick][-i]
 
+          if target =~ /^\x01ACTION (.*)\x01$/
+            prefix = "* #{nick} "
+            target = $1
+          else
+            prefix = "<#{nick}> "
+          end
+
           answer = if replace_all
             target.gsub(match, replace)
           else
@@ -86,13 +100,6 @@ bot = Cinch::Bot.new do
       
       next if target == answer
 
-      if target =~ /^\x01ACTION (.*)\x01$/
-        prefix = "* #{nick} "
-        target = $1
-      else
-        prefix = "<#{nick}> "
-      end
-      
       m.reply(prefix + answer)
     elsif m.message =~ /^#{Regexp.escape(m.bot.nick)}[:,]\s*help\s*$/
       m.reply("I perform Perl-style s/// regex replacements in the channel. If you prepend '!', I will only look at *your* last line. You can use up to #{@max_bangs} '!'s to look that many lines back. Ruby regex docs at http://is.gd/rubyregex", true)
