@@ -2,7 +2,7 @@ require 'cinch'
 
 bot = Cinch::Bot.new do
   configure do |c|
-    c.server   = "onyx.ninthbit.net"
+    c.server   = "irc.tenthbit.net"
     c.nick     = "reggie"
     c.channels = ["#programming", "#offtopic", "#bots"]
     
@@ -21,6 +21,10 @@ bot = Cinch::Bot.new do
       match   = $2
       replace = $3
       flags   = $4
+      
+      # This replaces \/ with / in the replacement part (that is, s//<here>/),
+      # because / needs to be escaped by users
+      replace.gsub!(/(?<!\\)((?:\\\\)*)\\\//, '\1/')
       
       if bangs.length > @max_bangs
         m.reply("I only support up to #{@max_bangs} !'s.", true)
