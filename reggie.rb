@@ -31,6 +31,8 @@ bot = Cinch::Bot.new do
         m.reply('in bed') if rand(100) == 42
         next
       end
+
+      extra_slashes_msg = flags.delete!('/') ? 'extra slashes and ' : ''
       
       regex_opts = []
       regex_opts << Regexp::IGNORECASE if flags.delete!('i')
@@ -38,7 +40,7 @@ bot = Cinch::Bot.new do
       regex_opts << Regexp::MULTILINE if flags.delete!('m')
       replace_all = flags.delete!('g')
       
-      m.reply("Ignoring unrecognized flags: #{flags}", true) if flags.size != 0
+      m.reply("Ignoring #{extra_slashes_msg}unrecognized flags: #{flags}", true) if flags.size != 0
       
       begin
         match = Regexp.new(match, regex_opts.reduce(:|))
