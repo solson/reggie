@@ -31,7 +31,7 @@ bot = Cinch::Bot.new do
         next
       end
 
-      extra_slashes? = flags.delete!('/')
+      extra_slashes = flags.delete!('/')
 
       regex_opts = []
       regex_opts << Regexp::IGNORECASE if flags.delete!('i')
@@ -39,9 +39,9 @@ bot = Cinch::Bot.new do
       regex_opts << Regexp::MULTILINE if flags.delete!('m')
       replace_all = flags.delete!('g')
       
-      if flags.size != 0 && extra_slashes?
+      if flags.size != 0 && extra_slashes
         m.reply("Ignoring extra slashes and unrecognized flags: #{flags}", true)
-      elsif extra_slashes?
+      elsif extra_slashes
         m.reply("Ignoring extra slashes.", true)
       elsif flags.size != 0
         m.reply("Ignoring unrecognized flags: #{flags}", true)
