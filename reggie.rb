@@ -28,19 +28,24 @@ bot = Cinch::Bot.new do
       
       if bangs.length > @max_bangs
         m.reply("I only support up to #{@max_bangs} !'s.", true)
-        m.reply('in bed') if rand(100) == 42
         next
       end
 
-      extra_slashes_msg = flags.delete!('/') ? 'extra slashes and ' : ''
-      
+      extra_slashes? = flags.delete!('/')
+
       regex_opts = []
       regex_opts << Regexp::IGNORECASE if flags.delete!('i')
       regex_opts << Regexp::EXTENDED if flags.delete!('x')
       regex_opts << Regexp::MULTILINE if flags.delete!('m')
       replace_all = flags.delete!('g')
       
-      m.reply("Ignoring #{extra_slashes_msg}unrecognized flags: #{flags}", true) if flags.size != 0
+      if flags.size != 0 && extra_slashes?
+        m.reply("Ignoring extra slashes and unrecognized flags: #{flags}", true)
+      elsif extra_slashes?
+        m.reply("Ignoring extra slashes.", true)
+      elsif flags.size != 0
+        m.reply("Ignoring unrecognized flags: #{flags}", true)
+      end
       
       begin
         match = Regexp.new(match, regex_opts.reduce(:|))
@@ -57,7 +62,6 @@ bot = Cinch::Bot.new do
       
       if target == nil
         m.reply("My memory doesn't go back that far!", true)
-        m.reply('in bed') if rand(100) == 42
         next
       end
 
