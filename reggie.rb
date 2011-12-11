@@ -90,6 +90,7 @@ bot = Cinch::Bot.new do
         nick = m.user.nick
         1.upto(@max_bangs) do |i|
           target = @ch_user_memory[m.channel][m.user.nick][-i]
+          break if target.nil?
 
           if target =~ /^\x01ACTION (.*)\x01$/
             prefix = "* #{nick} "
