@@ -16,7 +16,7 @@ bot = Cinch::Bot.new do
     @ch_user_memory[m.channel.name] ||= {}
     @ch_user_memory[m.channel.name][m.user.nick] ||= []
       
-    if m.message =~ %r"^(!*)s/((?:[^\\/]|\\.)*)/((?:[^\\/]|\\.)*)/(?:(\w*))?"
+    if m.message =~ %r"^(!*)s/((?:[^\\/]|\\.)*)/((?:[^\\/]|\\.)*)/(?:(\S*))?"
       bangs   = $1
       match   = $2
       replace = $3
