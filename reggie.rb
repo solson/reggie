@@ -50,7 +50,7 @@ bot = Cinch::Bot.new do
       begin
         match = Regexp.new(match, regex_opts.reduce(:|))
       rescue RegexpError => err
-        m.reply("RegexpError: #{err.message}", true)
+        m.reply(err.message.capitalize, true)
         next
       end
 
