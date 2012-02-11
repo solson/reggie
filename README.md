@@ -28,10 +28,10 @@ You can use multiple exclamation marks to refer to your even earlier lines.
 You can only use as many exclamation marks as the `@max_bangs` instance
 variable in `reggie.rb`, which is 3 by default.
 
-If you don't use any `!`s and reggie cannot match your regex to the previous
-line, it will try to match against your previous lines from most recent to
-earliest as if you had attempted `!s`, `!!s`, ..., until you got a match. This
-is also limited by the `@max_bangs` instance variable.
+If you don't use any exclamation marks and reggie cannot match your regex to
+the previous line, it will try to match against your previous lines from most
+recent to earliest as if you had attempted `!s`, `!!s`, ..., until you got a
+match. This is also limited by the `@max_bangs` instance variable.
 
 ``` irc
 <scott> This is a tset.
