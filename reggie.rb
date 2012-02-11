@@ -5,27 +5,27 @@ bot = Cinch::Bot.new do
     c.server   = "irc.tenthbit.net"
     c.nick     = "reggie"
     c.channels = ["#programming", "#offtopic", "#bots"]
-    
+
     @max_bangs = 3
     @ch_user_memory = {}
     @channel_memory = {}
   end
-  
+
   on :channel do |m|
     @channel_memory[m.channel.name] ||= []
     @ch_user_memory[m.channel.name] ||= {}
     @ch_user_memory[m.channel.name][m.user.nick] ||= []
-      
+
     if m.message =~ %r"^(!*)s/((?:[^\\/]|\\.)*)/((?:[^\\/]|\\.)*)/(?:(\S*))?"
       bangs   = $1
       match   = $2
       replace = $3
       flags   = $4
-      
+
       # This replaces \/ with / in the replacement part (that is, s//<here>/),
       # because / needs to be escaped by users
       replace.gsub!(/(?<!\\)((?:\\\\)*)\\\//, '\1/')
-      
+
       if bangs.length > @max_bangs
         m.reply("I only support up to #{@max_bangs} !'s.", true)
         next
@@ -38,7 +38,7 @@ bot = Cinch::Bot.new do
       regex_opts << Regexp::EXTENDED if flags.delete!('x')
       regex_opts << Regexp::MULTILINE if flags.delete!('m')
       replace_all = flags.delete!('g')
-      
+
       if flags.size != 0 && extra_slashes
         m.reply("Ignoring extra slashes and unrecognized flags: #{flags}", true)
       elsif extra_slashes
@@ -46,7 +46,7 @@ bot = Cinch::Bot.new do
       elsif flags.size != 0
         m.reply("Ignoring unrecognized flags: #{flags}", true)
       end
-      
+
       begin
         match = Regexp.new(match, regex_opts.reduce(:|))
       rescue RegexpError => err
@@ -59,7 +59,7 @@ bot = Cinch::Bot.new do
       else
         @ch_user_memory[m.channel][m.user.nick][-bangs.length]
       end
-      
+
       if target == nil
         m.reply("My memory doesn't go back that far!", true)
         next
@@ -108,7 +108,7 @@ bot = Cinch::Bot.new do
           break if answer != target
         end
       end
-      
+
       next if target == answer
 
       # Update the string in @ch_user_memory or @channel_memory.
@@ -123,7 +123,7 @@ bot = Cinch::Bot.new do
       @channel_memory[m.channel] = [m.user.nick, m.message]
     end
   end
-end      
+end
 
 bot.start
 
