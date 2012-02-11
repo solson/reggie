@@ -29,5 +29,5 @@ A decent reference for Ruby regex can be found
 
 Requirements
 ------------
-Reggie requires the 'cinch' gem.
+Reggie requires the [cinch](https://github.com/cinchrb/cinch) gem.
 
