@@ -33,6 +33,19 @@ bot = Cinch::Bot.new do
 
       extra_slashes = flags.delete!('/')
 
+      if flags.include?('?')
+        snappy_reply = [
+          "I don't know. Why don't you ask yourself?",
+          "How should I know?",
+          "Why would I know that?",
+          "Yes. Very yes.",
+          "Are you insane?",
+          "I don't know. Have you tried asking lazybot??"
+        ].sample
+        m.reply(snappy_reply, true)
+        next
+      end
+
       regex_opts = []
       regex_opts << Regexp::IGNORECASE if flags.delete!('i')
       regex_opts << Regexp::EXTENDED if flags.delete!('x')
