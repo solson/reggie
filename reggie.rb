@@ -1,12 +1,23 @@
 require 'cinch'
+require 'configru'
+
+Configru.load do
+  just 'config.yml'
+
+  defaults do
+    port 6667
+    max_bangs 3
+  end
+end
 
 bot = Cinch::Bot.new do
   configure do |c|
-    c.server   = "irc.tenthbit.net"
-    c.nick     = "reggie"
-    c.channels = ["#programming", "#offtopic", "#bots"]
+    c.server   = Configru.server
+    c.port     = Configru.port
+    c.nick     = Configru.nick
+    c.channels = Configru.channels
 
-    @max_bangs = 3
+    @max_bangs = Configru.max_bangs
     @ch_user_memory = {}
     @channel_memory = {}
   end

@@ -1,0 +1,5 @@
+nick: reggie
+server: irc.example.net
+channels:
+  - '#example'
+max_bangs: 3
