@@ -1,5 +1,6 @@
 require 'cinch'
 require 'configru'
+require_relative 'memory'
 
 Configru.load do
   just 'config.yml'
@@ -22,10 +23,29 @@ bot = Cinch::Bot.new do
     @channel_memory = {}
   end
 
+  helpers do
+    def regex_replace(target, match, replace, replace_all, nick)
+      if target =~ /^\x01ACTION (.*)\x01$/
+        prefix = "* #{nick} "
+        target = $1
+      else
+        prefix = "<#{nick}> "
+      end
+
+      answer = if replace_all
+        target.gsub(match, replace)
+      else
+        target.sub(match, replace)
+      end
+
+      return prefix, answer
+    end
+  end
+
   on :channel do |m|
-    @channel_memory[m.channel.name] ||= []
+    @channel_memory[m.channel.name] ||= Memory.new(@max_bangs)
     @ch_user_memory[m.channel.name] ||= {}
-    @ch_user_memory[m.channel.name][m.user.nick] ||= []
+    @ch_user_memory[m.channel.name][m.user.nick] ||= Memory.new(@max_bangs)
 
     if m.message =~ %r"^(!*)s/((?:[^\\/]|\\.)*)/((?:[^\\/]|\\.)*)/(?:(\S*))?"
       bangs   = $1
@@ -79,12 +99,12 @@ bot = Cinch::Bot.new do
       end
 
       target = if bangs.length == 0
-        @channel_memory[m.channel][1]
+        @channel_memory[m.channel][0] && @channel_memory[m.channel][0][1]
       else
         @ch_user_memory[m.channel][m.user.nick][-bangs.length]
       end
 
-      if target == nil
+      if !target
         m.reply("My memory doesn't go back that far!", true)
         next
       end
@@ -92,42 +112,33 @@ bot = Cinch::Bot.new do
       nick = if bangs.length > 0
         m.user.nick
       else
-        @channel_memory[m.channel][0]
+        @channel_memory[m.channel][0][0]
       end
 
-      if target =~ /^\x01ACTION (.*)\x01$/
-        prefix = "* #{nick} "
-        target = $1
-      else
-        prefix = "<#{nick}> "
-      end
-
-      answer = if replace_all
-        target.gsub(match, replace)
-      else
-        target.sub(match, replace)
-      end
+      prefix, answer = regex_replace(target, match, replace, replace_all, nick)
 
       # If s/// doesn't change anything, it will try !s///, !!s///, etc, up
-      # to the maximum number of exclamation marks.
+      # to the maximum number of exclamation marks. If the last !!!s/// fails,
+      # it will try to use previous lines from global channel memory.
       if bangs.length == 0 && target == answer
         nick = m.user.nick
         1.upto(@max_bangs) do |i|
           target = @ch_user_memory[m.channel][m.user.nick][-i]
           break if target.nil?
 
-          if target =~ /^\x01ACTION (.*)\x01$/
-            prefix = "* #{nick} "
-            target = $1
-          else
-            prefix = "<#{nick}> "
-          end
+          prefix, answer = regex_replace(target, match, replace, replace_all, nick)
 
-          answer = if replace_all
-            target.gsub(match, replace)
-          else
-            target.sub(match, replace)
-          end
+          break if answer != target
+        end
+
+        # Try global channel memory.
+
+        1.upto(@max_bangs) do |i|
+          entry = @channel_memory[m.channel][-i]
+          break if entry.nil?
+          nick, target = entry
+
+          prefix, answer = regex_replace(target, match, replace, replace_all, nick)
 
           break if answer != target
         end
@@ -140,11 +151,14 @@ bot = Cinch::Bot.new do
 
       m.reply(prefix + answer)
     elsif m.message =~ /^#{Regexp.escape(m.bot.nick)}[:,]\s*help\s*$/
-      m.reply("I perform Perl-style s/// regex replacements in the channel using Ruby regex. If you prepend '!', I will only look at *your* last line. You can use up to #{@max_bangs} '!'s to look that many lines back. Ruby regex docs at http://is.gd/rubyregexp", true)
+      m.reply("I perform Perl-style s/// regex replacements in the channel" \
+              "using Ruby regex. If you prepend '!', I will only look at" \
+              "*your* last line. You can use up to #{@max_bangs} '!'s to" \
+              "look that many lines back. Ruby regex docs at" \
+              "http://is.gd/rubyregexp", true)
     elsif !m.ctcp? || m.ctcp_command == 'ACTION'
       @ch_user_memory[m.channel][m.user.nick] << m.message
-      @ch_user_memory[m.channel][m.user.nick].unshift if @ch_user_memory[m.channel][m.user.nick].length > @max_bangs
-      @channel_memory[m.channel] = [m.user.nick, m.message]
+      @channel_memory[m.channel] << [m.user.nick, m.message]
     end
   end
 end
