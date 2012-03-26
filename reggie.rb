@@ -99,7 +99,7 @@ bot = Cinch::Bot.new do
       end
 
       target = if bangs.length == 0
-        @channel_memory[m.channel][0] && @channel_memory[m.channel][0][1]
+        @channel_memory[m.channel][-1] && @channel_memory[m.channel][-1][1]
       else
         @ch_user_memory[m.channel][m.user.nick][-bangs.length]
       end
@@ -112,7 +112,7 @@ bot = Cinch::Bot.new do
       nick = if bangs.length > 0
         m.user.nick
       else
-        @channel_memory[m.channel][0][0]
+        @channel_memory[m.channel][-1][0]
       end
 
       prefix, answer = regex_replace(target, match, replace, replace_all, nick)
