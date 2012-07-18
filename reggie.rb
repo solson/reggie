@@ -1,3 +1,4 @@
+require 'bundler/setup'
 require 'cinch'
 require 'configru'
 require_relative 'memory'
