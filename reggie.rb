@@ -28,7 +28,7 @@ bot = Cinch::Bot.new do
     def regex_replace(target, match, replace, replace_all, nick)
       if target =~ /^\x01ACTION (.*)\x01$/
         prefix = "* #{nick} "
-        target = $1
+        target.replace($1)
       else
         prefix = "<#{nick}> "
       end
