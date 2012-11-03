@@ -3,13 +3,12 @@ require 'cinch'
 require 'configru'
 require_relative 'memory'
 
-Configru.load do
-  just 'config.yml'
-
-  defaults do
-    port 6667
-    max_bangs 3
-  end
+Configru.load('config.yml') do
+  option_required :server, String
+  option :port, Fixnum, 6667
+  option_required :nick, String
+  option_array :channels, String
+  option :max_bangs, Fixnum, 3
 end
 
 bot = Cinch::Bot.new do
