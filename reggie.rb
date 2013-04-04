@@ -27,9 +27,11 @@ bot = Cinch::Bot.new do
     def regex_replace(target, match, replace, replace_all, nick)
       if target =~ /^\x01ACTION (.*)\x01$/
         prefix = "* #{nick} "
-        target.replace($1)
+        target = $1
+        action = true
       else
         prefix = "<#{nick}> "
+        action = false
       end
 
       answer = if replace_all
@@ -38,7 +40,11 @@ bot = Cinch::Bot.new do
         target.sub(match, replace)
       end
 
-      return prefix, answer
+      if action
+        return prefix, answer, "\x01ACTION #{answer}\x01"
+      else
+        return prefix, answer, answer
+      end
     end
   end
 
@@ -115,7 +121,8 @@ bot = Cinch::Bot.new do
         @channel_memory[m.channel][-1][0]
       end
 
-      prefix, answer = regex_replace(target, match, replace, replace_all, nick)
+      prefix, answer, new_memory =
+        regex_replace(target, match, replace, replace_all, nick)
 
       # If s/// doesn't change anything, it will try !s///, !!s///, etc, up
       # to the maximum number of exclamation marks. If the last !!!s/// fails,
@@ -147,7 +154,7 @@ bot = Cinch::Bot.new do
       next if target == answer
 
       # Update the string in @ch_user_memory or @channel_memory.
-      target.replace(answer)
+      target.replace(new_memory)
 
       m.reply(prefix + answer)
     elsif m.message =~ /^#{Regexp.escape(m.bot.nick)}[:,]\s*help\s*$/
